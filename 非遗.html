@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>非遗·大美 | Intangible Heritage</title>
+    <style>
+        /* --- 1. 全局变量 (Apple Style + 东方美学) --- */
+        :root {
+            --bg-color: #050505;
+            --text-primary: #f5f5f7;
+            --text-secondary: #86868b;
+            --accent-color: #C41E3A; /* 中国红/朱砂红 */
+            --glass-nav: rgba(5, 5, 5, 0.75);
+            --card-bg: #1c1c1e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "SF Pro Display", -apple-system, "PingFang SC", "Heiti SC", sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- 2. 导航栏 --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 52px;
+            background: var(--glass-nav);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-btn:hover, .nav-btn.active { color: var(--text-primary); }
+
+        /* --- 3. 页面容器与动画 --- */
+        .page-section {
+            display: none;
+            min-height: 100vh;
+            padding-top: 80px;
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .page-section.active { display: block; }
+        .container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- 4. 首页 (Origin) --- */
+        .hero {
+            height: 85vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: 72px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #fff 0%, #a1a1a6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 24px;
+            color: var(--text-secondary);
+            max-width: 680px;
+            margin: 0 auto 40px;
+            font-weight: 300;
+        }
+        .hero-img-box {
+            width: 100%;
+            /* aspect-ratio: 3/2; 替代方案 */
+            position: relative;
+            height: 0;
+            padding-bottom: 66.6667%; /* 2/3 = 66.6667%，实现 3:2 比例 */
+            border-radius: 24px;
+            overflow: hidden;
+            margin-top: 20px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+        }
+        .hero-img-box img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 10s ease;
+        }
+
+        .hero-img-box:hover img { transform: scale(1.1); }
+
+        .btn-primary {
+            padding: 14px 32px;
+            background-color: var(--text-primary);
+            color: #000;
+            border-radius: 980px;
+            font-size: 15px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        .btn-primary:hover { transform: scale(1.05); background-color: #fff; }
+
+        /* --- 5. 云展厅 (Gallery) --- */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+            padding-bottom: 60px;
+        }
+
+        .art-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .art-card:hover { transform: translateY(-8px); }
+
+        .art-img {
+            height: 240px; /* 稍微调低高度以适应更多卡片 */
+            background-color: #333;
+            overflow: hidden;
+        }
+
+        .art-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.9;
+            transition: transform 0.5s ease;
+        }
+        
+        .art-card:hover .art-img img {
+            transform: scale(1.05);
+        }
+
+        .art-info { padding: 24px; }
+
+        .art-tag {
+            color: var(--accent-color);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .art-title { font-size: 20px; font-weight: 600; margin-bottom: 10px; color: #fff; }
+        .art-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
+
+        /* --- 6. 数据洞察 (Insight) --- */
+        .insight-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .big-number {
+            font-size: 64px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .stat-label { font-size: 16px; color: var(--text-secondary); margin-bottom: 24px; }
+
+        .chart-line {
+            width: 100%;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .chart-fill {
+            height: 100%;
+            background: var(--accent-color);
+            border-radius: 3px;
+            width: 0;
+            transition: width 1.5s ease-in-out;
+        }
+
+        .chart-legend { display: flex; justify-content: space-between; font-size: 13px; color: #666; }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 40px; }
+            .hero p { font-size: 18px; }
+            .insight-container { grid-template-columns: 1fr; }
+            .hero-img-box { height: 250px; }
+        }
+        
+        footer {
+            text-align: center;
+            padding: 60px 0;
+            color: #444;
+            font-size: 12px;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 导航 -->
+    <nav>
+        <div class="nav-links">
+            <button class="nav-btn active" onclick="switchPage('origin')">溯源 · ORIGIN</button>
+            <button class="nav-btn" onclick="switchPage('gallery')">云展 · GALLERY</button>
+            <button class="nav-btn" onclick="switchPage('insight')">洞察 · INSIGHT</button>
+        </div>
+    </nav>
+
+    <!-- 1. 首页：溯源 -->
+    <section id="origin" class="page-section active">
+        <div class="container">
+            <div class="hero">
+                <h1>千年文脉，<br>触手可及。</h1>
+                <p>非物质文化遗产是民族的记忆与灵魂。在快节奏的现代生活中，我们为您呈现一场跨越时空的文化对话。</p>
+                <button class="btn-primary" onclick="switchPage('gallery')">浏览非遗名录</button>
+                
+                <div class="hero-img-box">
+                    <!-- 更加通用的中国文化/建筑/氛围图 -->
+                    <img src="https://img2.baidu.com/it/u=2006393659,159899561&fm=253&fmt=auto&app=138&f=JPEG?w=750&h=500" alt="Chinese Heritage Architecture">
+                </div>
+                <p style="margin-top: 20px; font-size: 12px; color: #555;">图：光影下的中国传统建筑与文化氛围</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. 分页：云展厅 (6个项目) -->
+    <section id="gallery" class="page-section">
+        <div class="container">
+            <h2 style="font-size: 40px; text-align: center; margin-bottom: 20px;">非遗 · 臻选</h2>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 60px;">探索 2025 年度最受关注的非遗技艺</p>
+
+            <div class="gallery-grid">
+                <!-- 卡片1: 瓷器 -->
+                <div class="art-card">
+                    <div class="art-img">
+                        <img src="https://img1.baidu.com/it/u=2644830180,87566473&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500" alt="Blue and White Porcelain">
+                    </div>
+                    <div class="art-info">
+                        <span class="art-tag">民间美术</span>
+                        <h3 class="art-title">青花瓷</h3>
+                        <p class="art-desc">白釉青花一火成，花从釉里透分明。素胚勾勒出青花，笔锋浓转淡。</p>
+                    </div>
+                </div>
+
+                <!-- 卡片2: 刺绣 -->
+                <div class="art-card">
+                    <div class="art-img">
+                        <img src="https://img2.baidu.com/it/u=512726929,3083375677&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=800" alt="Silk Embroidery">
+                    </div>
+                    <div class="art-info">
+                        <span class="art-tag">传统技艺</span>
+                        <h3 class="art-title">苏绣</h3>
+                        <p class="art-desc">以针作画，以线传神。精细雅洁的针法，绣出江南水乡的温婉与灵动。</p>
+                    </div>
+                </div>
+
+                <!-- 卡片3: 皮影/戏曲 (用更通用的戏曲/脸谱图) -->
+                <div class="art-card">
+                    <div class="art-img">
+                        <img src="https://pic.rmb.bdstatic.com/bjh/events/e56749464094b5f1a62d1384dbac21cd8388.jpeg@h_1280" alt="Chinese Opera Mask">
+                    </div>
+                    <div class="art-info">
+                        <span class="art-tag">传统戏剧</span>
+                        <h3 class="art-title">京剧脸谱</h3>
+                        <p class="art-desc">红脸忠义，白脸奸诈。方寸之间，用色彩与线条勾勒出千古英雄的性格。</p>
+                    </div>
+                </div>
+
+                <!-- 卡片4: 剪纸 (新增) -->
+                <div class="art-card">
+                    <div class="art-img">
+                        <img src="https://img1.baidu.com/it/u=1177251957,1867731533&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=800" alt="Chinese Paper Cutting red">
+                    </div>
+                    <div class="art-info">
+                        <span class="art-tag">民间美术</span>
+                        <h3 class="art-title">剪纸艺术</h3>
+                        <p class="art-desc">一张红纸，一把剪刀。镂空的艺术，在光影交错中祈求生活的美满与吉祥。</p>
+                    </div>
+                </div>
+
+                <!-- 卡片5: 茶道 (新增) -->
+                <div class="art-card">
+                    <div class="art-img">
+                        <img src="https://img0.baidu.com/it/u=3326325256,3850149987&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=750" alt="Chinese Tea Ceremony">
+                    </div>
+                    <div class="art-info">
+                        <span class="art-tag">民俗文化</span>
+                        <h3 class="art-title">中国茶道</h3>
+                        <p class="art-desc">茶和天下。从采摘到冲泡，每一道工序都蕴含着天人合一的东方哲学。</p>
+                    </div>
+                </div>
+
+                 <!-- 卡片6: 竹编 (新增) -->
+                 <div class="art-card">
+                    <div class="art-img">
+                        <img src="https://img2.baidu.com/it/u=2118250242,1380699244&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=608" alt="Bamboo Weaving Craft">
+                    </div>
+                    <div class="art-info">
+                        <span class="art-tag">传统技艺</span>
+                        <h3 class="art-title">竹编工艺</h3>
+                        <p class="art-desc">经纬交织，刚柔并济。将自然的馈赠编织成器，展现朴素而坚韧的匠心。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. 分页：数据洞察 (年份更新为2025) -->
+    <section id="insight" class="page-section">
+        <div class="container">
+            <h2 style="font-size: 40px; margin-bottom: 20px;">2025 传承报告。</h2>
+            <p style="color: var(--text-secondary); max-width: 600px; margin-bottom: 60px;">
+                在新媒体时代，非遗正以全新的姿态回归大众视野。数据见证了古老文明在当代的复兴之路。
+            </p>
+
+            <div class="insight-container">
+                <!-- 数据图表 1 -->
+                <div class="stat-card">
+                    <span class="stat-label">2025年 非遗文创产品市场规模增长</span>
+                    <div class="big-number">+ 156%</div>
+                    <div style="margin-top: 30px;">
+                        <div class="chart-legend">
+                            <span>2023年 (基准)</span>
+                            <span>稳步增长</span>
+                        </div>
+                        <div class="chart-line"><div class="chart-fill" style="width: 40%; background: #444;"></div></div>
+                        
+                        <div class="chart-legend">
+                            <span>2025年 (预测)</span>
+                            <span>爆发式破圈</span>
+                        </div>
+                        <div class="chart-line"><div class="chart-fill" style="width: 95%;"></div></div>
+                    </div>
+                    <p style="font-size: 13px; color: #555; margin-top: 20px;">国潮兴起，非遗成为Z世代消费新宠。</p>
+                </div>
+
+                <!-- 数据图表 2 -->
+                <div class="stat-card">
+                    <span class="stat-label">社交平台“非遗”话题相关搜索量</span>
+                    <div class="big-number">8.2 <span style="font-size: 24px;">亿次</span></div>
+                    <div style="margin-top: 30px;">
+                        <div class="chart-legend">
+                            <span>2024年</span>
+                            <span>4.5亿</span>
+                        </div>
+                        <div class="chart-line"><div class="chart-fill" style="width: 50%; background: #444;"></div></div>
+
+                        <div class="chart-legend">
+                            <span>2025年</span>
+                            <span>8.2亿</span>
+                        </div>
+                        <div class="chart-line"><div class="chart-fill" style="width: 90%;"></div></div>
+                    </div>
+                    <p style="font-size: 13px; color: #555; margin-top: 20px;">越来越多的人开始主动搜索和关注传统文化。</p>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 60px;">
+                <p style="color: #666;">数据来源：2025 中国非物质文化遗产发展年度报告</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        Designed for Cultural Heritage | 2025
+    </footer>
+
+    <script>
+        function switchPage(pageId) {
+            // 1. 隐藏所有页面
+            document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
+            // 2. 移除所有导航激活状态
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // 3. 激活当前页面
+            document.getElementById(pageId).classList.add('active');
+            
+            // 4. 激活对应按钮
+            const btns = document.querySelectorAll('.nav-btn');
+            if(pageId === 'origin') btns[0].classList.add('active');
+            if(pageId === 'gallery') btns[1].classList.add('active');
+            if(pageId === 'insight') btns[2].classList.add('active');
+
+            // 5. 滚动回顶部
+            window.scrollTo(0, 0);
+
+            // 6. 如果是进入数据页，触发动画
+            if(pageId === 'insight') {
+                setTimeout(() => {
+                    const bars = document.querySelectorAll('.chart-fill');
+                    // 重置宽度动画
+                    const widths = ['40%', '95%', '50%', '90%'];
+                    bars.forEach((bar, index) => {
+                        bar.style.width = '0';
+                        setTimeout(() => bar.style.width = widths[index], 100);
+                    });
+                }, 100);
+            }
+        }
+    </script>
+</body>
+</html>
